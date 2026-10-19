@@ -1,0 +1,51 @@
+SITE MJ7 PLUGINS - NOTE POUR LE DEVELOPPEUR
+
+Site statique : 1 page HTML + images. Aucune base de donnees, aucun serveur, aucune compilation.
+
+MISE EN LIGNE
+- Copier le contenu de ce dossier a la racine du domaine (index.html a la racine, dossier img/ a cote).
+- Fonctionne sur n'importe quel hebergement statique : Netlify, Vercel, Cloudflare Pages, GitHub Pages,
+  ou un hebergement classique (dossier public_html).
+- Activer le HTTPS (certificat gratuit Let's Encrypt) et la redirection HTTP -> HTTPS.
+
+SECURITE (deja en place, a conserver)
+- La balise <meta http-equiv="Content-Security-Policy"> dans <head> bloque tout script ou contenu externe.
+  Elle autorise le script de la page par son empreinte (sha256). Si vous modifiez le <script> en bas de la
+  page, recalculez cette empreinte, sinon le compte a rebours, le filtre et le bouton "Copier" ne marcheront plus.
+- Recommande si l'hebergeur le permet, en en-tetes HTTP :
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+A SAVOIR
+- Les prix passent tout seuls aux prix normaux le 1er novembre 2026 (code JavaScript dans la page).
+- Les boutons "Commander" ouvrent WhatsApp (+225 07 58 61 60 73).
+- Les boutons de telechargement pointent vers les installateurs heberges sur GitHub
+  (github.com/Mj7777777777/mj7-downloads/releases) : ne pas les copier, les liens restent valables.
+- Polices chargees depuis Google Fonts (Sora, Manrope).
+
+----------------------------------------------------------------
+PAIEMENT KADEV PAY (ajoute apres la v1 statique)
+----------------------------------------------------------------
+Le site n'est plus 100 % statique : il faut un hebergement PHP 8+ avec SQLite (PDO) et cURL (LWS : OK).
+
+STRUCTURE
+- api/pay.php        cree la commande (prix fixe cote serveur), affiche le pop-up Kadev Pay
+- api/webhook.php    recoit les webhooks (signature HMAC-SHA512 verifiee), declenche une verification
+- api/download.php   sert l'installateur SEULEMENT si le paiement est confirme (pack paye uniquement)
+- merci.php          page de retour : verifie le paiement aupres de Kadev Pay puis affiche les boutons
+- private/           config, code, base SQLite, INSTALLATEURS (acces web interdit par .htaccess)
+- private/installateur/  y deposer les 4 fichiers (noms exacts dans private/config.php)
+
+MISE EN PRODUCTION (LWS)
+1. Idealement placer private/ AU-DESSUS de public_html et adapter les chemins "../private" (4 fichiers
+   dans api/ et merci.php). Sinon garder .htaccess et tester que https://votresite/private/config.php est refuse.
+2. Editer private/config.php : site_url (https), provider => 'kadevpay', cles kdvp_/kdvs_, secret webhook,
+   mail_from (adresse de votre domaine).
+3. Dashboard Kadev Pay : URL webhook = https://votresite/api/webhook.php
+4. Deposer les installateurs dans private/installateur/.
+5. Tester en cles kdvp_test_ / kdvs_test_ AVANT de passer en cles live.
+6. Les liens de telechargement GitHub de la section "Essai gratuit" restent publics : ne pas y mettre
+   d'installateur reserve aux clients.
+Chaque vente declenche un email a admin_email avec l'email et le WhatsApp du client (pour envoyer la cle).

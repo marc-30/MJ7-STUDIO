@@ -1,0 +1,9 @@
+# Installateurs : deposes a la main sur le serveur (jamais dans git)
+private/installateur/*
+!private/installateur/.gitkeep
+# Secrets et donnees
+private/config.php
+private/data/*
+!private/data/.htaccess
+.DS_Store
+installateur/

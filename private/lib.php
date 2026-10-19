@@ -1,18 +1,36 @@
 <?php
 declare(strict_types=1);
 
-function cfg(): array { static $c; return $c ??= require __DIR__ . '/config.php'; }
+ini_set('display_errors', '0');          // ne jamais afficher d'erreurs PHP au visiteur
+ini_set('log_errors', '1');
+
+function cfg(): array {
+    static $c;
+    if ($c === null) {
+        $c = require __DIR__ . '/config.php';
+        // Garde-fou : le faux agregateur permet de "payer" sans payer. Interdit hors machine locale.
+        if ($c['provider'] === 'mock' && !in_array(parse_url($c['site_url'], PHP_URL_HOST), ['localhost', '127.0.0.1'], true)) {
+            http_response_code(500);
+            error_log('MJ7: provider=mock refuse hors localhost');
+            exit('Configuration invalide.');
+        }
+    }
+    return $c;
+}
 
 function db(): PDO {
     static $pdo;
     if (!$pdo) {
+        $new = !is_file(cfg()['db_path']);
         $pdo = new PDO('sqlite:' . cfg()['db_path']);
+        if ($new) @chmod(cfg()['db_path'], 0600);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE IF NOT EXISTS orders (
             id TEXT PRIMARY KEY, token TEXT NOT NULL, pack TEXT NOT NULL, amount INTEGER NOT NULL,
             email TEXT NOT NULL, whatsapp TEXT NOT NULL, status TEXT NOT NULL DEFAULT "pending",
             provider_ref TEXT, created_at INTEGER NOT NULL, paid_at INTEGER, downloads INTEGER NOT NULL DEFAULT 0,
-            mailed INTEGER NOT NULL DEFAULT 0)');
+            ip TEXT)');
+        $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS orders_ref ON orders(provider_ref)');   // 1 reference = 1 commande
     }
     return $pdo;
 }

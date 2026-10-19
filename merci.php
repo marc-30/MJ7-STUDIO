@@ -12,7 +12,7 @@ $status = $o['status'] ?? 'unknown';
 header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'");
 header('Referrer-Policy: no-referrer');
 header('Cache-Control: no-store');
-if ($status === 'pending') header('Refresh: 5');
+if ($status === 'pending' && time() - (int)$o['created_at'] < 3600) header('Refresh: 5');
 $q = 'o=' . urlencode($id) . '&t=' . urlencode($tok);
 ?><!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">

@@ -31,9 +31,14 @@ function provider_verify(array $o): string {
     $st = strtolower((string)($d['status'] ?? ''));
     if ($st === 'paid') {
         if ((int)($d['amount'] ?? -1) !== (int)$o['amount']) return 'pending';           // montant different : refuse
-        $meta = $d['metadata'] ?? [];
-        if (isset($meta['order_id']) && $meta['order_id'] !== $o['id']) return 'pending'; // transaction d'une autre commande
-        if (isset($d['email']) && strcasecmp((string)$d['email'], $o['email']) !== 0) return 'pending';
+        // Liaison obligatoire transaction <-> commande (empeche de reutiliser la reference d'un autre client).
+        $metaOk  = isset($d['metadata']['order_id']) && hash_equals($o['id'], (string)$d['metadata']['order_id']);
+        $emailOk = isset($d['email']) && strcasecmp((string)$d['email'], $o['email']) === 0;
+        if (isset($d['metadata']['order_id']) && !$metaOk) return 'pending';   // appartient a une autre commande
+        if (!$metaOk && !$emailOk) {
+            error_log('MJ7: verification Kadev sans metadata.order_id ni email : paiement non valide automatiquement, ref ' . $o['provider_ref']);
+            return 'pending';
+        }
         return 'paid';
     }
     return in_array($st, ['failed', 'cancelled', 'canceled', 'expired'], true) ? 'failed' : 'pending';
@@ -53,7 +58,7 @@ function provider_webhook(string $raw, array $server): ?array {
 
 function http_json(string $method, string $url, array $headers = []): array {
     $ch = curl_init($url);
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20, CURLOPT_CUSTOMREQUEST => $method,
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20, CURLOPT_FOLLOWLOCATION => false, CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2, CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_HTTPHEADER => array_merge(['Accept: application/json'], $headers)]);
     $out = curl_exec($ch);
     curl_close($ch);

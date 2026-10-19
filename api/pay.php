@@ -12,13 +12,18 @@ if (!isset(cfg()['packs'][$pack]) || !filter_var($email, FILTER_VALIDATE_EMAIL) 
     exit('Formulaire invalide. Revenez en arrière et vérifiez votre email et votre numéro WhatsApp.');
 }
 
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+$s = db()->prepare('SELECT COUNT(*) FROM orders WHERE ip=? AND created_at > ?'); $s->execute([$ip, time() - 3600]);
+if ((int)$s->fetchColumn() >= 15) { http_response_code(429); exit('Trop de tentatives. Réessayez dans une heure.'); }
+
 $o = ['id' => bin2hex(random_bytes(8)), 'token' => bin2hex(random_bytes(16)), 'pack' => $pack,
       'amount' => price_for($pack), 'email' => $email, 'whatsapp' => $wa];   // prix fixe cote serveur
-db()->prepare('INSERT INTO orders (id,token,pack,amount,email,whatsapp,created_at) VALUES (?,?,?,?,?,?,?)')
-    ->execute([$o['id'], $o['token'], $o['pack'], $o['amount'], $o['email'], $o['whatsapp'], time()]);
+db()->prepare('INSERT INTO orders (id,token,pack,amount,email,whatsapp,created_at,ip) VALUES (?,?,?,?,?,?,?,?)')
+    ->execute([$o['id'], $o['token'], $o['pack'], $o['amount'], $o['email'], $o['whatsapp'], time(), $ip]);
 
 if (cfg()['provider'] === 'mock') { header('Location: /api/mock_checkout.php?o=' . $o['id']); exit; }
 
+function jenc($v): string { return json_encode($v, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); }
 $k = cfg()['kadevpay'];
 $cb = cfg()['site_url'] . '/merci.php?o=' . $o['id'] . '&t=' . $o['token'];
 $nonce = base64_encode(random_bytes(16));
@@ -35,13 +40,13 @@ header('Cache-Control: no-store');
 <script nonce="<?= $nonce ?>">
 function pay(){
   KadevPay.checkout({
-    public_key: <?= json_encode($k['public_key']) ?>,
+    public_key: <?= jenc($k['public_key']) ?>,
     amount: <?= (int)$o['amount'] ?>,
-    email: <?= json_encode($o['email']) ?>,
-    phone: <?= json_encode($o['whatsapp']) ?>,
-    callback_url: <?= json_encode($cb) ?>,
-    metadata: { order_id: <?= json_encode($o['id']) ?> },
-    onSuccess: function (r) { location.href = <?= json_encode($cb) ?> + "&ref=" + encodeURIComponent(r.reference); },
+    email: <?= jenc($o['email']) ?>,
+    phone: <?= jenc($o['whatsapp']) ?>,
+    callback_url: <?= jenc($cb) ?>,
+    metadata: { order_id: <?= jenc($o['id']) ?> },
+    onSuccess: function (r) { location.href = <?= jenc($cb) ?> + "&ref=" + encodeURIComponent(r.reference); },
     onClose: function () {}
   });
 }

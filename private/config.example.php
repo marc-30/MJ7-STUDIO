@@ -26,7 +26,7 @@ return [
     // Prix en FCFA : [prix lancement, prix normal]. Bascule le 1er novembre 2026.
     'promo_until' => '2026-11-01',
     'packs' => [
-        'vocal' => ['label' => 'MJ7 Vocal Pack',    'promo' => 70000,  'normal' => 100000,
+        'vocal' => ['label' => 'MJ7 Vocal Pack',    'promo' => 100,    'normal' => 100,   
                     'files' => ['win' => 'MJ7-Vocal-Pack-Windows-Installateur.exe',
                                 'mac' => 'MJ7-Vocal-Pack-Mac-Installateur.pkg']],
         'suite' => ['label' => 'MJ7 Suite complète', 'promo' => 130000, 'normal' => 150000,

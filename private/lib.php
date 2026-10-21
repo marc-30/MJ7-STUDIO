@@ -45,12 +45,19 @@ function guide_cfg(): array {
         'file' => 'MJ7-Guide-Vocal-Chain.pdf', 'dir' => __DIR__ . '/guide'];
 }
 
-/** Chemin du PDF : private/guide/ en priorite, sinon private/installateur/guide/, sinon private/installateur/. */
+/** Chemin du PDF du guide : nom exact d'abord, sinon n'importe quel .pdf (majuscules et espaces toleres). */
 function guide_path(): ?string {
     $g = guide_cfg();
-    foreach ([$g['dir'], cfg()['files_dir'] . '/guide', cfg()['files_dir']] as $dir) {
+    $dirs = [$g['dir'], cfg()['files_dir'] . '/guide', cfg()['files_dir']];
+    foreach ($dirs as $dir) {
         if (is_file($dir . '/' . $g['file'])) return $dir . '/' . $g['file'];
     }
+    foreach ($dirs as $dir) {
+        foreach (is_dir($dir) ? scandir($dir) : [] as $f) {
+            if (strtolower(pathinfo($f, PATHINFO_EXTENSION)) === 'pdf' && is_file($dir . '/' . $f)) return $dir . '/' . $f;
+        }
+    }
+    error_log('MJ7 guide introuvable, dossiers cherches : ' . implode(' | ', $dirs));
     return null;
 }
 

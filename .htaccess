@@ -1,4 +1,5 @@
 Options -Indexes
+DirectoryIndex index.php index.html
 # Le depot Git (clone sur le serveur) ne doit jamais etre lisible depuis le web
 RedirectMatch 404 /\.git
 # En-tetes de securite

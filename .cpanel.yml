@@ -7,7 +7,8 @@ deployment:
   tasks:
     - export DEPLOYPATH=$HOME/public_html/
     - /bin/mkdir -p $DEPLOYPATH/api $DEPLOYPATH/img $DEPLOYPATH/private/data $DEPLOYPATH/private/installateur $DEPLOYPATH/private/guide
-    - /bin/cp -f index.html merci.php robots.txt .htaccess $DEPLOYPATH
+    - /bin/rm -f $DEPLOYPATH/index.html
+    - /bin/cp -f index.php merci.php robots.txt .htaccess $DEPLOYPATH
     - /bin/cp -f api/*.php $DEPLOYPATH/api/
     - /bin/cp -f img/* $DEPLOYPATH/img/
     - /bin/cp -f private/.htaccess private/lib.php private/provider.php $DEPLOYPATH/private/

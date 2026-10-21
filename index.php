@@ -1,3 +1,9 @@
+<?php
+require __DIR__ . '/private/lib.php';
+$f = fn(int $n): string => number_format($n, 0, '', ' ');
+$pk = cfg()['packs']; $gp = guide_cfg()['price'];
+$vp = $pk['vocal']['promo']; $vn = $pk['vocal']['normal']; $sp = $pk['suite']['promo']; $sn = $pk['suite']['normal'];
+?>
 <!doctype html>
 <html lang="fr">
 <head>
@@ -200,6 +206,7 @@ h1, h2, h3, h4 { font-family: var(--display); margin: 0; text-wrap: balance; let
 .pay input { font-family: var(--body); font-size: 14px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,.25); background: rgba(255,255,255,.9); color: #111; }
 .pay .btn { margin-top: 4px; }
 .pay .opt { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.pay .opt span { line-height: 1.35; }
 .pay .opt input { width: 18px; height: 18px; padding: 0; accent-color: var(--orange); flex: none; }
 .plan.hot { background: var(--orange); border-color: var(--orange); color: #fff; }
 .plan.hot .for, .plan.hot .was { color: #ffe0d0; }
@@ -419,12 +426,12 @@ footer .wrap { padding-block: 46px 30px; }
         </div>
         <div class="step">
           <div class="top-row"><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><span class="n">02</span></div>
-          <h3>Payez</h3><p>Orange Money ou Wave, au numéro :</p>
-          <div class="phone"><code id="tel">+225 07 58 61 60 73</code><button class="copy" id="copy-tel" type="button">Copier</button><span class="copied" id="copy-msg" aria-live="polite"></span></div>
+          <h3>Payez</h3><p>Cliquez sur « Payer maintenant » : paiement sécurisé par mobile money (Orange Money, Wave, MTN, Moov) ou carte.</p>
+          <div class="phone" style="display:none"><code id="tel">+225 07 58 61 60 73</code><button class="copy" id="copy-tel" type="button">Copier</button><span class="copied" id="copy-msg" aria-live="polite"></span></div>
         </div>
         <div class="step">
           <div class="top-row"><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/></svg></span><span class="n">03</span></div>
-          <h3>Recevez votre clé</h3><p>Envoyez votre nom et votre pack sur WhatsApp : votre clé de licence arrive par message.</p>
+          <h3>Recevez votre clé</h3><p>Votre lien de téléchargement s'affiche dès le paiement confirmé, et votre clé de licence vous est envoyée par email.</p>
         </div>
         <div class="step">
           <div class="top-row"><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12.5 10 17 19 7"/></svg></span><span class="n">04</span></div>
@@ -449,7 +456,7 @@ footer .wrap { padding-block: 46px 30px; }
           <span class="tag o">En option</span>
           <div class="name">Guide Vocal Chain</div>
           <div class="for">À ajouter à votre pack</div>
-          <div class="price"><span class="v">+7 000</span><span class="u">FCFA</span></div>
+          <div class="price"><span class="v">+<?= $f($gp) ?></span><span class="u">FCFA</span></div>
           <div class="was"></div>
           <ul>
             <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>PDF de 30 pages</li>
@@ -462,8 +469,8 @@ footer .wrap { padding-block: 46px 30px; }
           <span class="tag" data-promo>Offre de lancement</span>
           <div class="name">MJ7 Vocal Pack</div>
           <div class="for">Pour les artistes et les beatmakers</div>
-          <div class="price"><span class="v" data-price="70000" data-normal="100000">70 000</span><span class="u">FCFA</span></div>
-          <div class="was"><span data-promo>au lieu de 100 000 FCFA</span></div>
+          <div class="price"><span class="v" data-price="<?= $vp ?>" data-normal="<?= $vn ?>"><?= $f(price_for('vocal')) ?></span><span class="u">FCFA</span></div>
+          <div class="was"><?php if ($vp < $vn): ?><span data-promo>au lieu de <?= $f($vn) ?> FCFA</span><?php endif; ?></div>
           <ul>
             <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>MJ7 Vocal Chain</li>
             <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>MJ7 Backs &amp; Ad-libs</li>
@@ -475,7 +482,7 @@ footer .wrap { padding-block: 46px 30px; }
             <input type="hidden" name="pack" value="vocal">
             <input type="email" name="email" placeholder="Votre email (pour la clé)" required autocomplete="email">
             <input type="tel" name="whatsapp" placeholder="Votre WhatsApp, ex : +225 07 00 00 00 00" required autocomplete="tel" minlength="8">
-            <label class="opt"><input type="checkbox" name="guide" value="1"> Ajouter le guide PDF Vocal Chain <b>+7 000 FCFA</b></label>
+            <label class="opt"><input type="checkbox" name="guide" value="1"><span>Ajouter le guide PDF Vocal Chain <b>+<?= $f($gp) ?> FCFA</b></span></label>
             <button class="btn dark" type="submit">Payer maintenant</button>
           </form>
         </article>
@@ -483,8 +490,8 @@ footer .wrap { padding-block: 46px 30px; }
           <span class="tag o" data-promo>Offre de lancement</span>
           <div class="name">MJ7 Suite complète</div>
           <div class="for">Pour les ingés son et les studios</div>
-          <div class="price"><span class="v" data-price="130000" data-normal="150000">130 000</span><span class="u">FCFA</span></div>
-          <div class="was"><span data-promo>au lieu de 150 000 FCFA</span></div>
+          <div class="price"><span class="v" data-price="<?= $sp ?>" data-normal="<?= $sn ?>"><?= $f(price_for('suite')) ?></span><span class="u">FCFA</span></div>
+          <div class="was"><?php if ($sp < $sn): ?><span data-promo>au lieu de <?= $f($sn) ?> FCFA</span><?php endif; ?></div>
           <ul>
             <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>Tout le Vocal Pack (5 plugins)</li>
             <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 10.5 4 4 8-9"/></svg>MJ7 Master Chain</li>
@@ -494,12 +501,12 @@ footer .wrap { padding-block: 46px 30px; }
             <input type="hidden" name="pack" value="suite">
             <input type="email" name="email" placeholder="Votre email (pour la clé)" required autocomplete="email">
             <input type="tel" name="whatsapp" placeholder="Votre WhatsApp, ex : +225 07 00 00 00 00" required autocomplete="tel" minlength="8">
-            <label class="opt"><input type="checkbox" name="guide" value="1"> Ajouter le guide PDF Vocal Chain <b>+7 000 FCFA</b></label>
+            <label class="opt"><input type="checkbox" name="guide" value="1"><span>Ajouter le guide PDF Vocal Chain <b>+<?= $f($gp) ?> FCFA</b></span></label>
             <button class="btn primary" type="submit">Payer maintenant</button>
           </form>
         </article>
       </div>
-      <p class="after" id="after-note">À partir du 1er novembre 2026 : Vocal Pack 100 000 FCFA, Suite complète 150 000 FCFA.</p>
+      <p class="after" id="after-note">À partir du 1er novembre 2026 : Vocal Pack <?= $f($vn) ?> FCFA, Suite complète <?= $f($sn) ?> FCFA.</p>
     </div>
   </section>
 

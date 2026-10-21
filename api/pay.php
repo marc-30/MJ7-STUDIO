@@ -28,7 +28,7 @@ function jenc($v): string { return json_encode($v, JSON_HEX_TAG | JSON_HEX_AMP |
 $k = cfg()['kadevpay'];
 $cb = cfg()['site_url'] . '/merci.php?o=' . $o['id'] . '&t=' . $o['token'];
 $nonce = base64_encode(random_bytes(16));
-header("Content-Security-Policy: default-src 'none'; script-src 'nonce-$nonce' https://pay.kadev.ci; connect-src https://pay.kadev.ci; frame-src https://pay.kadev.ci; style-src 'unsafe-inline' https://pay.kadev.ci; img-src https: data:; font-src https: data:; base-uri 'none'; form-action 'none'");
+header("Content-Security-Policy: default-src 'none'; script-src 'nonce-$nonce' https://pay.kadev.ci https://*.paystack.co https://*.paystack.com; connect-src https://pay.kadev.ci https://*.paystack.co https://*.paystack.com; frame-src https://pay.kadev.ci https://*.paystack.co https://*.paystack.com; style-src 'unsafe-inline' https:; img-src https: data:; font-src https: data:; base-uri 'none'; form-action 'none'");
 header('Cache-Control: no-store');
 ?><!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>Paiement | MJ7 Plugins</title>

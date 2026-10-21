@@ -8,6 +8,7 @@ function cfg(): array {
     static $c;
     if ($c === null) {
         $c = require __DIR__ . '/config.php';
+        $c['site_url'] = rtrim($c['site_url'], '/');   // tolere un slash final dans la config
         // Garde-fou : le faux agregateur permet de "payer" sans payer. Interdit hors machine locale.
         if ($c['provider'] === 'mock' && !in_array(parse_url($c['site_url'], PHP_URL_HOST), ['localhost', '127.0.0.1'], true)) {
             http_response_code(500);

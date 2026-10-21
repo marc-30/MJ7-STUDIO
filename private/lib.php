@@ -44,6 +44,15 @@ function guide_cfg(): array {
         'file' => 'MJ7-Guide-Vocal-Chain.pdf', 'dir' => __DIR__ . '/guide'];
 }
 
+/** Chemin du PDF : private/guide/ en priorite, sinon private/installateur/guide/, sinon private/installateur/. */
+function guide_path(): ?string {
+    $g = guide_cfg();
+    foreach ([$g['dir'], cfg()['files_dir'] . '/guide', cfg()['files_dir']] as $dir) {
+        if (is_file($dir . '/' . $g['file'])) return $dir . '/' . $g['file'];
+    }
+    return null;
+}
+
 function price_for(string $pack): int {
     $p = cfg()['packs'][$pack];
     $promo = (new DateTimeImmutable('now', new DateTimeZone('Africa/Abidjan'))) < new DateTimeImmutable(cfg()['promo_until'], new DateTimeZone('Africa/Abidjan'));

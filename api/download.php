@@ -10,7 +10,7 @@ if ((int)$o['downloads'] >= cfg()['max_downloads']) { http_response_code(429); e
 
 if ($os === 'guide') {                                    // le guide n'est livre que s'il a ete paye
     if (!$o['guide']) { http_response_code(403); exit('Accès refusé.'); }
-    $name = guide_cfg()['file']; $path = guide_cfg()['dir'] . '/' . $name; $mime = 'application/pdf';
+    $name = guide_cfg()['file']; $path = guide_path() ?? ''; $mime = 'application/pdf';
 } else {
     $name = cfg()['packs'][$o['pack']]['files'][$os];     // seul le pack paye est accessible
     $path = cfg()['files_dir'] . '/' . $name; $mime = 'application/octet-stream';

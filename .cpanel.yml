@@ -10,5 +10,5 @@ deployment:
     - /bin/cp -f index.html merci.php robots.txt .htaccess $DEPLOYPATH
     - /bin/cp -f api/*.php $DEPLOYPATH/api/
     - /bin/cp -f img/* $DEPLOYPATH/img/
-    - /bin/cp -f private/.htaccess private/lib.php private/provider.php private/config.example.php $DEPLOYPATH/private/
+    - /bin/cp -f private/.htaccess private/lib.php private/provider.php $DEPLOYPATH/private/
     - /bin/cp -f private/data/.htaccess $DEPLOYPATH/private/data/

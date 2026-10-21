@@ -1,0 +1,14 @@
+---
+# Deploiement cPanel (Git Version Control > Deploy HEAD Commit).
+# Copie le site vers la racine web. Ne touche JAMAIS a : private/config.php, private/data/,
+# private/installateur/, private/guide/ (vos fichiers propres au serveur).
+# Si le site n'est pas dans public_html, changer DEPLOYPATH (chemin absolu, ex : /home/moncompte/public_html/).
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/
+    - /bin/mkdir -p $DEPLOYPATH/api $DEPLOYPATH/img $DEPLOYPATH/private/data $DEPLOYPATH/private/installateur $DEPLOYPATH/private/guide
+    - /bin/cp -f index.html merci.php robots.txt .htaccess $DEPLOYPATH
+    - /bin/cp -f api/*.php $DEPLOYPATH/api/
+    - /bin/cp -f img/* $DEPLOYPATH/img/
+    - /bin/cp -f private/.htaccess private/lib.php private/provider.php private/config.example.php $DEPLOYPATH/private/
+    - /bin/cp -f private/data/.htaccess $DEPLOYPATH/private/data/

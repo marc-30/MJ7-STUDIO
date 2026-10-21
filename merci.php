@@ -5,7 +5,8 @@ require __DIR__ . '/private/provider.php';
 
 $id = (string)($_GET['o'] ?? ''); $tok = (string)($_GET['t'] ?? '');
 $o = order_for_buyer($id, $tok);
-if ($o && isset($_GET['ref'])) $o = order_bind_ref($o, (string)$_GET['ref']) ?? $o;
+$ref = (string)($_GET['ref'] ?? $_GET['reference'] ?? $_GET['trxref'] ?? '');   // selon que Kadev Pay renvoie via onSuccess ou callback_url
+if ($o && $ref !== '') $o = order_bind_ref($o, $ref) ?? $o;
 if ($o) $o = order_refresh($o);          // verification serveur a serveur aupres de l'agregateur
 $status = $o['status'] ?? 'unknown';
 
@@ -32,6 +33,9 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui,sans-serif;displa
   <p>Votre clé de licence est envoyée à <b><?= esc($o['email']) ?></b>. Gardez cette page en favori.</p>
 <?php elseif ($status === 'pending'): ?>
   <h1>Vérification du paiement…</h1><p>Cette page se met à jour toute seule. Ne la fermez pas.</p>
+  <?php if (time() - (int)$o['created_at'] > 120): ?>
+  <p>Cela prend plus de temps que prévu. Si vous avez bien payé, écrivez-nous sur <a class="l" href="https://wa.me/2250758616073?text=Bonjour%2C%20j%27ai%20pay%C3%A9%20(commande%20<?= esc($o['id']) ?>)%20mais%20je%20n%27ai%20pas%20acc%C3%A8s%20au%20t%C3%A9l%C3%A9chargement.">WhatsApp</a> avec le numéro de commande <b><?= esc($o['id']) ?></b>.</p>
+  <?php endif; ?>
 <?php elseif ($status === 'failed'): ?>
   <h1>Paiement non abouti</h1><p>Aucun montant n'a été débité.</p><a class="btn" href="/#prix">Réessayer</a>
 <?php else: ?>

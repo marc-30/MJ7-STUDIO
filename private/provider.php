@@ -30,17 +30,25 @@ function provider_verify(array $o): string {
         ['Authorization: Bearer ' . $k['secret_key']]);
     $d = $res['data'] ?? $res;
     $st = strtolower((string)($d['status'] ?? ''));
-    if ($st === 'paid') {
-        if ((int)($d['amount'] ?? -1) !== (int)$o['amount']) return 'pending';           // montant different : refuse
-        // Liaison obligatoire transaction <-> commande (empeche de reutiliser la reference d'un autre client).
-        $metaOk  = isset($d['metadata']['order_id']) && hash_equals($o['id'], (string)$d['metadata']['order_id']);
-        $emailOk = isset($d['email']) && strcasecmp((string)$d['email'], $o['email']) === 0;
-        if (isset($d['metadata']['order_id']) && !$metaOk) return 'pending';   // appartient a une autre commande
-        if (!$metaOk && !$emailOk) {
-            error_log('MJ7: verification Kadev sans metadata.order_id ni email : paiement non valide automatiquement, ref ' . $o['provider_ref']);
+    if (in_array($st, ['paid', 'success', 'successful', 'completed'], true)) {
+        $exp = (int)$o['amount']; $amt = (int)round((float)($d['amount'] ?? -1));
+        $meta = $d['metadata'] ?? [];
+        if (is_string($meta)) $meta = json_decode($meta, true) ?: [];
+        $mid = isset($meta['order_id']) ? (string)$meta['order_id'] : null;
+        $email = $d['email'] ?? ($d['customer']['email'] ?? null);
+        $metaOk  = $mid !== null && hash_equals($o['id'], $mid);
+        $emailOk = $email !== null && strcasecmp((string)$email, $o['email']) === 0;
+        $amountOk = ($amt === $exp || $amt === $exp * 100);   // certains agregateurs renvoient l'unite mineure
+        if (!$amountOk || ($mid !== null && !$metaOk) || (!$metaOk && !$emailOk)) {
+            error_log('MJ7 verify REFUSE: ref=' . $o['provider_ref'] . ' montant_recu=' . $amt . ' attendu=' . $exp
+                . ' metadata_order=' . var_export($mid, true) . ' email_trouve=' . var_export($email !== null, true)
+                . ' cles=' . implode(',', array_keys($d)));
             return 'pending';
         }
         return 'paid';
+    }
+    if (!in_array($st, ['failed', 'cancelled', 'canceled', 'expired'], true)) {
+        error_log('MJ7 verify: statut="' . $st . '" ref=' . $o['provider_ref'] . ' cles_reponse=' . implode(',', array_keys($res)));
     }
     return in_array($st, ['failed', 'cancelled', 'canceled', 'expired'], true) ? 'failed' : 'pending';
 }

@@ -19,6 +19,9 @@ return [
     // Expediteur des emails clients (une adresse de votre domaine, sinon les mails finissent en spam)
     'mail_from'   => 'contact@mj7plugins.com',
 
+    // Guide PDF vendu en option (deposer le fichier dans private/guide/)
+    'guide' => ['label' => 'Guide Vocal Chain', 'price' => 7000, 'file' => 'MJ7-Guide-Vocal-Chain.pdf', 'dir' => __DIR__ . '/guide'],
+
     'db_path'     => __DIR__ . '/data/orders.sqlite',
     'files_dir'   => __DIR__ . '/installateur',
     'max_downloads' => 20,

@@ -25,9 +25,10 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui,sans-serif;displa
 </style></head><body><div class="c">
 <?php if ($status === 'paid'): ?>
   <h1>Paiement confirmé</h1>
-  <p><?= esc(cfg()['packs'][$o['pack']]['label']) ?> : téléchargez votre installateur.</p>
+  <p><?= esc(cfg()['packs'][$o['pack']]['label']) ?> : téléchargez votre installateur<?= $o['guide'] ? ' et votre guide' : '' ?>.</p>
   <a class="btn" href="/api/download.php?<?= $q ?>&os=win">Windows</a>
   <a class="btn o" href="/api/download.php?<?= $q ?>&os=mac">Mac</a>
+  <?php if ($o['guide']): ?><br><a class="btn o" href="/api/download.php?<?= $q ?>&os=guide">Guide PDF</a><?php endif; ?>
   <p>Votre clé de licence est envoyée à <b><?= esc($o['email']) ?></b>. Gardez cette page en favori.</p>
 <?php elseif ($status === 'pending'): ?>
   <h1>Vérification du paiement…</h1><p>Cette page se met à jour toute seule. Ne la fermez pas.</p>

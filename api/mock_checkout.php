@@ -5,7 +5,7 @@ require __DIR__ . '/../private/lib.php';
 if (cfg()['provider'] !== 'mock') { http_response_code(404); exit; }
 $o = order_get((string)($_GET['o'] ?? '')) or exit('Commande inconnue');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    db()->prepare('UPDATE orders SET provider_ref=? WHERE id=?')->execute([isset($_POST['ok']) ? 'mock-paid' : 'mock-failed', $o['id']]);
+    db()->prepare('UPDATE orders SET provider_ref=? WHERE id=?')->execute([(isset($_POST['ok']) ? 'mock-paid-' : 'mock-failed-') . $o['id'], $o['id']]);
     header('Location: /merci.php?o=' . $o['id'] . '&t=' . $o['token']); exit;
 }
 ?><!doctype html><meta charset="utf-8"><body style="font-family:sans-serif;max-width:420px;margin:60px auto">

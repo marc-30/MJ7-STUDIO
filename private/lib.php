@@ -29,10 +29,19 @@ function db(): PDO {
             id TEXT PRIMARY KEY, token TEXT NOT NULL, pack TEXT NOT NULL, amount INTEGER NOT NULL,
             email TEXT NOT NULL, whatsapp TEXT NOT NULL, status TEXT NOT NULL DEFAULT "pending",
             provider_ref TEXT, created_at INTEGER NOT NULL, paid_at INTEGER, downloads INTEGER NOT NULL DEFAULT 0,
-            ip TEXT)');
+            ip TEXT, guide INTEGER NOT NULL DEFAULT 0)');
+        // Migration : base creee avant l'ajout du guide
+        $cols = array_column($pdo->query('PRAGMA table_info(orders)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (!in_array('guide', $cols, true)) $pdo->exec('ALTER TABLE orders ADD COLUMN guide INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS orders_ref ON orders(provider_ref)');   // 1 reference = 1 commande
     }
     return $pdo;
+}
+
+/** Reglages du guide PDF (valeurs par defaut : marche meme si config.php ne les contient pas). */
+function guide_cfg(): array {
+    return (cfg()['guide'] ?? []) + ['label' => 'Guide Vocal Chain', 'price' => 7000,
+        'file' => 'MJ7-Guide-Vocal-Chain.pdf', 'dir' => __DIR__ . '/guide'];
 }
 
 function price_for(string $pack): int {
@@ -67,7 +76,7 @@ function order_refresh(array $o): array {
 }
 
 function order_notify(array $o): void {
-    $c = cfg(); $label = $c['packs'][$o['pack']]['label'];
+    $c = cfg(); $label = $c['packs'][$o['pack']]['label'] . ($o['guide'] ? ' + ' . guide_cfg()['label'] : '');
     $link = $c['site_url'] . '/merci.php?o=' . $o['id'] . '&t=' . $o['token'];
     $h = "From: MJ7 Plugins <{$c['mail_from']}>\r\nContent-Type: text/plain; charset=UTF-8";
     @mail($o['email'], 'Votre commande MJ7 : ' . $label,

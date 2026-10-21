@@ -21,7 +21,8 @@ function order_bind_ref(array $o, string $ref): ?array {
 function provider_verify(array $o): string {
     $c = cfg();
     if ($c['provider'] === 'mock') {
-        return $o['provider_ref'] === 'mock-paid' ? 'paid' : ($o['provider_ref'] === 'mock-failed' ? 'failed' : 'pending');
+        $r = (string)$o['provider_ref'];
+        return str_starts_with($r, 'mock-paid-') ? 'paid' : (str_starts_with($r, 'mock-failed-') ? 'failed' : 'pending');
     }
     if (!$o['provider_ref']) return 'pending';         // le client n'a pas encore paye
     $k = $c['kadevpay'];

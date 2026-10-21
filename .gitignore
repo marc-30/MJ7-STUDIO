@@ -7,3 +7,8 @@ private/data/*
 !private/data/.htaccess
 .DS_Store
 installateur/
+
+# Guide PDF : depose a la main sur le serveur
+private/guide/*
+!private/guide/.gitkeep
+*.pdf

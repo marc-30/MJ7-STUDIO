@@ -15,9 +15,9 @@ return [
     ],
 
     // Email qui recoit une alerte a chaque paiement (pour envoyer la cle de licence)
-    'admin_email' => 'adeniangelot@gmail.com',
+    'admin_email' => 'votre-adresse@exemple.com',
     // Expediteur des emails clients (une adresse de votre domaine, sinon les mails finissent en spam)
-    'mail_from'   => 'contact@mj7plugins.com',
+    'mail_from'   => 'contact@votre-domaine.com',
 
     // Guide PDF vendu en option (deposer le fichier dans private/guide/)
     'guide' => ['label' => 'Guide Vocal Chain', 'price' => 7000, 'file' => 'MJ7-Guide-Vocal-Chain.pdf', 'dir' => __DIR__ . '/guide'],
